@@ -40,7 +40,13 @@ END
 
 3 TEXTINCLUDE 
 BEGIN
-    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED\r\n"
+    "#pragma code_page(936)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\version.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#endif\r\n"
     "\0"
 END
 
@@ -159,16 +165,16 @@ BEGIN
 END
 
 IDD_DLG_ABOUT DIALOGEX 0, 0, 186, 120
-STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP
-FONT 9, "宋体", 400, 0, 0x86
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP
+FONT 9, "MS Shell Dlg", 400, 0, 0x86
 BEGIN
     DEFPUSHBUTTON   "确定",IDOK,129,97,50,16
-    ICON            IDI_MAIN_ICON,IDC_STATIC,7,7,21,21
-    LTEXT           "PDB Explorer",IDC_ST_VER,38,7,49,8
+    ICON            IDI_MAIN_ICON,IDC_STATIC,7,7,18,18
+    LTEXT           "PDB Explorer",IDC_ST_VER,38,7,141,8
     LTEXT           "版权所有：Titi Studio",IDC_STATIC,38,25,85,8
     LTEXT           "作者：李马",IDC_STATIC,38,43,41,8
-    LTEXT           "titilima@163.com",IDC_ST_MAIL,38,61,65,8
-    LTEXT           "http://www.titilima.cn",IDC_ST_HOMEPAGE,38,79,89,8
+    LTEXT           "titilima@163.com",IDC_ST_MAIL,38,61,141,8
+    LTEXT           "http://blog.titilima.com",IDC_ST_HOMEPAGE,38,79,141,8
 END
 
 IDD_DLG_DOWNLOAD DIALOGEX 0, 0, 250, 156
@@ -238,7 +244,13 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+#endif //_WIN32
+#include "res\version.rc2"  // non-Microsoft Visual C++ edited resources
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED

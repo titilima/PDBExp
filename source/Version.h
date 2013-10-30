@@ -1,19 +1,26 @@
 ///////////////////////////////////////////////////////////////////////////////
-// 文件名：  Version.h
-// 创建时间：2007-11-1
-// 作者：    李马
-// 版权所有：Titi Studio (?) 2001-2007
+// FileName:    Version.h
+// Created:     2007/11/01
+// Author:      titilima
+// CopyRight:   Titi Studio (?) 2001-2013
 //-----------------------------------------------------------------------------
-// 说明：    版本说明
+// Information: Version Information
 ///////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-#define BLDNUM  "223"
-#define PDBEXP_WNDCAPTION           _T("PDB Explorer v1.11.")##_T(BLDNUM)
+#define PDBEXP_VER          1.2.0.1
+#define PDBEXP_RCVER        1,2,0,1
+#define PDBEXP_VERSTR       "1.2.0.1"
+#define PDBEXP_RCVERSTR     "1,2,0,1"
+
+#define PDBEXP_WNDCAPTION           _T("PDB Explorer v")##_T(PDBEXP_VERSTR)
 
 ///////////////////////////////////////////////////////////////////////////////
-// 升级记录
+// Version Logs
+//=============================================================================
+// v1.2.0
+//   * Port to WTL.
 // v1.11.223 - 2009.08.18
 //            * PDL Version: 0.02.128
 //            * 开源版本。

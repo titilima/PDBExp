@@ -51,7 +51,8 @@
 				RuntimeLibrary="1"
 				BufferSecurityCheck="false"
 				RuntimeTypeInfo="false"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="LvStd.h"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
@@ -136,7 +137,8 @@
 				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
 				RuntimeTypeInfo="false"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="LvStd.h"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
@@ -226,6 +228,26 @@
 				>
 			</File>
 			<File
+				RelativePath=".\LvStd.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\MainFrame.cpp"
 				>
 			</File>
@@ -284,6 +306,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\LvStd.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MainFrame.h"
 				>
 			</File>
@@ -336,6 +362,10 @@
 			</File>
 			<File
 				RelativePath=".\toolbar.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\version.rc2"
 				>
 			</File>
 		</Filter>

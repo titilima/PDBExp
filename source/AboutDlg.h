@@ -1,30 +1,39 @@
 ///////////////////////////////////////////////////////////////////////////////
-// 文件名：  AboutDlg.h
-// 创建时间：2007-11-12
-// 作者：    李马
-// 版权所有：Titi Studio (?) 2001-2007
+// FileName:    AboutDlg.h
+// Created:     2007/11/12
+// Author:      titilima
+// CopyRight:   Titi Studio (?) 2001-2013
 //-----------------------------------------------------------------------------
-// 说明：    关于对话框
+// Information: About Dialog
 ///////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-#include <pdl_window.h>
-#include <pdl_ctrlext.h>
+#include <atlctrlx.h>
 
-class CAboutDlg : public LDialog
+class CAboutDlg : public CDialogImpl<CAboutDlg>, public CWinDataExchange<CAboutDlg>
 {
 public:
     CAboutDlg(void);
+    enum { IDD = IDD_DLG_ABOUT };
+public:
+    BEGIN_MSG_MAP_EX(CAboutDlg)
+        MSG_WM_LBUTTONDOWN(OnLButtonDown)
+        MSG_WM_INITDIALOG(OnInitDialog)
+
+        COMMAND_ID_HANDLER_EX(IDCANCEL, OnOKCancel)
+        COMMAND_ID_HANDLER_EX(IDOK, OnOKCancel)
+    END_MSG_MAP()
+    BEGIN_DDX_MAP(CAboutDlg)
+        DDX_CONTROL(IDC_ST_HOMEPAGE, m_stHome)
+        DDX_CONTROL(IDC_ST_MAIL, m_stMail)
+    END_DDX_MAP()
 private:
-    void OnCommand(WORD wNotifyCode, WORD wID, HWND hWndCtrl, BOOL& bHandled);
-    void OnHomePage(void);
-    void OnMail(void);
-    void OnOk(void);
+    BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
+    void OnLButtonDown(UINT nFlags, CPoint point);
+    void OnMouseMove(UINT nFlags, CPoint point);
+    void OnOKCancel(UINT uNotifyCode, int nID, CWindow wndCtl);
 private:
-    BOOL OnInitDialog(HWND hCtrlFocus, LPARAM lParam, BOOL& bHandled);
-    void OnLButtonDown(UINT uFlags, int x, int y, BOOL& bHandled);
-private:
-    LHyperLink m_stHome;
-    LHyperLink m_stMail;
+    CHyperLink m_stHome;
+    CHyperLink m_stMail;
 };
