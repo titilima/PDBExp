@@ -33,7 +33,7 @@ public:
 private:
     static BOOL cbFindSymbol(IDiaSymbol* pCurSymbol, LPVOID pParam);
 private:
-    LComPtr<IDiaDataSource> m_ds;
-    LComPtr<IDiaSession> m_pSession;
+    CComPtr<IDiaDataSource> m_ds;
+    CComPtr<IDiaSession> m_pSession;
     SymPtr m_pSymbol;
 };

@@ -102,7 +102,7 @@ BOOL CMainFrame::cbAddEnum(IDiaSymbol* pCurSymbol, LPVOID pParam)
 {
     CMainFrame* This = (CMainFrame*)pParam;
 
-    LBStr b;
+    CComBSTR b;
     pCurSymbol->get_name(&b);
     if (0 != lstrcmpW(b, L"__unnamed")
         && CB_ERR == This->m_cbSymbols.FindString(b))
@@ -121,7 +121,7 @@ BOOL CMainFrame::cbAddTypedef(IDiaSymbol* pCurSymbol, LPVOID pParam)
 {
     CMainFrame* This = (CMainFrame*)pParam;
 
-    LBStr b;
+    CComBSTR b;
     pCurSymbol->get_name(&b);
     if (0 != lstrcmpW(b, L"__unnamed")
         && CB_ERR == This->m_cbSymbols.FindString(b))
@@ -143,7 +143,7 @@ BOOL CMainFrame::cbAddUDT(IDiaSymbol* pCurSymbol, LPVOID pParam)
     UdtKind enKind;
     pCurSymbol->get_udtKind((LPDWORD)&enKind);
 
-    LBStr b;
+    CComBSTR b;
     pCurSymbol->get_name(&b);
     if (0 != lstrcmpW(b, L"__unnamed") &&
         CB_ERR == This->m_cbSymbols.FindString(b))
@@ -493,7 +493,7 @@ void CMainFrame::OnSave(void)
 
     LFileDialogW dlg(FALSE, L"*.txt\0*.txt\0\0", NULL);
     IDiaSymbol* pSymbol = m_vDetail.GetCurrentSymbol();
-    LBStr bsName;
+    CComBSTR bsName;
     pSymbol->get_name(&bsName);
     wsprintfW(dlg.m_szFileName, L"%s.txt", (PCWSTR)bsName);
 

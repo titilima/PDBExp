@@ -41,7 +41,7 @@ CDetailView::CDetailView(void) : LAxCtrl(), m_pEventHandler(NULL)
 
 void CDetailView::AddText(__in PCWSTR pszText)
 {
-    LBStr bsText = pszText;
+    CComBSTR bsText = pszText;
     m_pBody->insertAdjacentHTML(L"beforeEnd", bsText);
 }
 
@@ -53,13 +53,13 @@ void CDetailView::Clear(void)
 
 void CDetailView::Copy(void)
 {
-    LComPtr<IHTMLSelectionObject> pSel = NULL;
+    CComPtr<IHTMLSelectionObject> pSel = NULL;
     m_pDoc->get_selection(&pSel);
 
-    LComPtr<IHTMLTxtRange> pTxt = NULL;
+    CComPtr<IHTMLTxtRange> pTxt = NULL;
     pSel->createRange(reinterpret_cast<IDispatch**>(&pTxt));
 
-    LBStr bsSel;
+    CComBSTR bsSel;
     pTxt->get_text(&bsSel);
     if (bsSel.IsEmpty())
         return;
@@ -78,7 +78,7 @@ void CDetailView::Copy(void)
 
 void CDetailView::CopyAll(void)
 {
-    LBStr bsSel;
+    CComBSTR bsSel;
     m_pBody->get_innerText(&bsSel);
     if (bsSel.IsEmpty())
         return;
@@ -114,7 +114,7 @@ IDiaSymbol* CDetailView::GetCurrentSymbol(void)
 
 BOOL CDetailView::GetText(__out LStringA* pStr)
 {
-    LBStr bsSel;
+    CComBSTR bsSel;
     m_pBody->get_innerText(&bsSel);
     if (bsSel.IsEmpty())
         return FALSE;
@@ -167,7 +167,7 @@ int CDetailView::OnCreate(LPCREATESTRUCT lpCreateStruct, BOOL& bHandled)
     LVariant url = strPage;
     m_pWB2->Navigate2(&url, NULL, NULL, NULL, NULL);
 
-    LComPtr<IDispatch> pDisp = NULL;
+    CComPtr<IDispatch> pDisp = NULL;
     m_pWB2->get_Document(&pDisp);
     m_pDoc = pDisp;
     return 0;

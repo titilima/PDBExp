@@ -1,6 +1,6 @@
 #include "LvStd.h"
 #include "SymWrap.h"
-#include <pdl_module.h>
+#include <sstream>
 
 CSym::CSym(__in IDiaSymbol* sym)
 {
@@ -13,11 +13,13 @@ CSym::~CSym(void)
     m_sym->Release();
 }
 
-void CSym::Declare(__out LStringW* str, __in PCWSTR lpName)
+void CSym::Declare(__out wstring* str, __in PCWSTR lpName)
 {
-    LStringW strType;
+    wstring strType;
     GetType(&strType);
-    str->Format(L"%s %s", (PCWSTR)strType, lpName);
+    str->assign(strType);
+    str->append(1, L' ');
+    str->append(lpName);
 }
 
 void CSym::Delete(__in CSym* sym)
@@ -34,7 +36,7 @@ IDiaSymbol* CSym::Enum(
     if (NULL == symParent)
         return NULL;
 
-    LComPtr<IDiaEnumSymbols> pEnum = NULL;
+    CComPtr<IDiaEnumSymbols> pEnum = NULL;
     HRESULT hr = symParent->findChildren(enTag, NULL, nsNone, &pEnum);
     if (SUCCEEDED(hr) && pEnum)
     {
@@ -58,28 +60,32 @@ IDiaSymbol* CSym::Enum(
     return NULL;
 }
     
-BOOL CSym::Format(__out LStringW* str)
+BOOL CSym::Format(__out wstring* str)
 {
     enum SymTagEnum tag;
-    LBStr bsName;
+    CComBSTR bsName;
     m_sym->get_name(&bsName);
     m_sym->get_symTag((PDWORD)&tag);
-    PDLLOG(L"CSym::Format [%d] %s.\n", tag, (PCWSTR)bsName);
+
+    ATLTRACE(L"CSym::Format [%d] %s.\n", tag, bsName.m_str);
+    ATLASSERT(false);
     return FALSE;
 }
 
-BOOL CSym::GetHeader(__out LStringW* str)
+BOOL CSym::GetHeader(__out wstring* str)
 {
     return FALSE;
 }
 
-BOOL CSym::GetType(__out LStringW* str)
+BOOL CSym::GetType(__out wstring* str)
 {
     enum SymTagEnum tag;
-    LBStr bsName;
+    CComBSTR bsName;
     m_sym->get_name(&bsName);
     m_sym->get_symTag((PDWORD)&tag);
-    PDLLOG(L"CSym::GetType [%d] %s.\n", tag, (PCWSTR)bsName);
+
+    ATLTRACE(L"CSym::GetType [%d] %s.\n", tag, bsName.m_str);
+    ATLASSERT(false);
     return FALSE;
 }
 
@@ -127,47 +133,49 @@ CSym* CSym::NewSym(__in IDiaSymbol* sym)
     return ret;
 }
 
-void CSym::TypeDefine(__out LStringW* str, __in PCWSTR lpType)
+void CSym::TypeDefine(__out wstring* str, __in PCWSTR lpType)
 {
-    LStringW strType;
+    wstring strType;
     GetType(&strType);
-    str->Format(L"<font class=\"key\">typedef</font> %s %s;",
-        (PCWSTR)strType, lpType);
+    str->assign(L"<font class=\"key\">typedef</font> ");
+    str->append(strType);
+    str->append(1, L' ');
+    str->append(lpType);
+    str->append(1, ';');
 }
 
-BOOL CSymFunction::Format(__out LStringW* str)
+BOOL CSymFunction::Format(__out wstring* str)
 {
-    LBStr bsName;
+    CComBSTR bsName;
     m_sym->get_name(&bsName);
 
     SymPtr type;
     m_sym->get_type(&type);
 
-    LStringW strDeclare;
-    LStringW strName;
+    wstring strDeclare;
+    wstring strName;
     PCWSTR call = CSymFunctionType::GetCallType(type);
-    if (NULL == call || L'\0' == *call)
-        strName.Format(L"%s", (PCWSTR)bsName);
-    else
-        strName.Format(L"%s %s", call, (PCWSTR)bsName);
+    if (NULL == call || L'\0' == *call) {
+        strName = bsName;
+    } else {
+        strName = call;
+        strName.append(1, L' ');
+        strName.append(bsName);
+    }
 
     CSym* sym = CSym::NewSym(type);
-    sym->Declare(&strDeclare, strName);
+    sym->Declare(&strDeclare, strName.c_str());
     CSym::Delete(sym);
 
     // Virtual
     BOOL bVirtual = FALSE;
     m_sym->get_virtual(&bVirtual);
-    if (bVirtual)
-    {
-        str->Format(L"&nbsp;&nbsp;&nbsp;&nbsp;"         \
-            L"<font class=\"key\">virtual</font> %s",   \
-            (PCWSTR)strDeclare);
+    if (bVirtual) {
+        str->assign(L"&nbsp;&nbsp;&nbsp;&nbsp;<font class=\"key\">virtual</font> ");
+    } else {
+        str->assign(L"&nbsp;&nbsp;&nbsp;&nbsp;%s");
     }
-    else
-    {
-        str->Format(L"&nbsp;&nbsp;&nbsp;&nbsp;%s", (PCWSTR)strDeclare);
-    }
+    str->append(strDeclare);
 
     // Pure
     BOOL bPure = FALSE;
@@ -178,18 +186,18 @@ BOOL CSymFunction::Format(__out LStringW* str)
     return TRUE;
 }
 
-BOOL CSymData::Format(__out LStringW* str)
+BOOL CSymData::Format(__out wstring* str)
 {
     SymPtr symType;
     HRESULT hr = m_sym->get_type(&symType);
     if (FAILED(hr))
         return FALSE;
 
-    LBStr bsName;
+    CComBSTR bsName;
     m_sym->get_name(&bsName);
 
     // declare
-    LStringW strDeclare;
+    wstring strDeclare;
     CSym* type = CSym::NewSym(symType);
     type->Declare(&strDeclare, (PCWSTR)bsName);
     CSym::Delete(type);
@@ -201,17 +209,19 @@ BOOL CSymData::Format(__out LStringW* str)
     m_sym->get_offset(&offset);
 
     // "    <type> <var>; // +<offset>(<size>)"
-    str->Format(L"&nbsp;&nbsp;&nbsp;&nbsp;%s; "  \
-        L"<font class=\"comment\">// +0x%x(0x%x)</font><br />\r\n",
-        (PCWSTR)strDeclare, offset, (ULONG)size);
+    wstringstream stm(L"&nbsp;&nbsp;&nbsp;&nbsp;");
+    stm << strDeclare
+        << L"<font class=\"comment\">// +0x" << hex << offset << L"(0x" << size << L")</font>"
+        << L"<br />\r\n";
+    *str = stm.str();
     return TRUE;
 }
 
 BOOL CSymUDT::EnumBase(IDiaSymbol* sym, PVOID param)
 {
-    LStringW* str = (LStringW*)param;
+    wstring* str = (wstring*)param;
 
-    LBStr bsName;
+    CComBSTR bsName;
     sym->get_name(&bsName);
 
     CV_access_e enAccess = CV_private;
@@ -229,13 +239,12 @@ BOOL CSymUDT::EnumBase(IDiaSymbol* sym, PVOID param)
         access = L"<font class=\"key\">public</font>";
         break;
     }
-    PDLASSERT(NULL != access);
+    ATLASSERT(NULL != access);
 
-    LStringW strAccess;
-    if (0 == str->GetLength())
-        strAccess.Format(L" : %s %s", access, (PCWSTR)bsName);
-    else
-        strAccess.Format(L", %s %s", access, (PCWSTR)bsName);
+    wstring strAccess(str->empty() ? L" : " : L", ");
+    strAccess.append(access);
+    strAccess.append(1, L' ');
+    strAccess.append(bsName);
     *str += strAccess;
     return FALSE;
 }
@@ -244,7 +253,7 @@ BOOL CSymUDT::EnumMember(IDiaSymbol* sym, PVOID param)
 {
     SymAccess* p = (SymAccess*)param;
 
-    LStringW strMember;
+    wstring strMember;
     CSym* symMember = CSym::NewSym(sym);
     if (NULL != symMember)
     {
@@ -269,7 +278,7 @@ BOOL CSymUDT::EnumMember(IDiaSymbol* sym, PVOID param)
     return FALSE;
 }
 
-BOOL CSymUDT::Format(__out LStringW* str)
+BOOL CSymUDT::Format(__out wstring* str)
 {
     UdtKind enKind = (UdtKind)-1;
     HRESULT hr = m_sym->get_udtKind((PDWORD)&enKind);
@@ -286,9 +295,9 @@ BOOL CSymUDT::Format(__out LStringW* str)
 
     // function
     CSym::Enum(m_sym, SymTagFunction, EnumMember, &member);
-    lenPublic = member.strPublic.GetLength();
-    lenProtected = member.strProtected.GetLength();
-    lenPrivate = member.strPrivate.GetLength();
+    lenPublic = member.strPublic.length();
+    lenProtected = member.strProtected.length();
+    lenPrivate = member.strPrivate.length();
     if (0 != lenPublic)
     {
         // struct 默认不带 public
@@ -312,9 +321,9 @@ BOOL CSymUDT::Format(__out LStringW* str)
     member.strProtected = L"";
     member.strPrivate = L"";
     CSym::Enum(m_sym, SymTagData, EnumMember, &member);
-    lenPublic = member.strPublic.GetLength();
-    lenProtected = member.strProtected.GetLength();
-    lenPrivate = member.strPrivate.GetLength();
+    lenPublic = member.strPublic.length();
+    lenProtected = member.strProtected.length();
+    lenPrivate = member.strPrivate.length();
     if (0 != lenPublic)
     {
         // struct 默认不带 public
@@ -338,7 +347,7 @@ BOOL CSymUDT::Format(__out LStringW* str)
     return TRUE;
 }
 
-BOOL CSymUDT::GetHeader(__out LStringW* str)
+BOOL CSymUDT::GetHeader(__out wstring* str)
 {
     UdtKind enKind = (UdtKind)-1;
     HRESULT hr = m_sym->get_udtKind((PDWORD)&enKind);
@@ -358,26 +367,27 @@ BOOL CSymUDT::GetHeader(__out LStringW* str)
         tmp = L"union";
         break;
     default:
-        PDLASSERT(FALSE);
+        ATLASSERT(false);
     }
 
-    LBStr bsName;
+    CComBSTR bsName;
     ULONGLONG size;
     m_sym->get_name(&bsName);
     m_sym->get_length(&size);
 
     // base
-    LStringW strBase;
+    wstring strBase;
     CSym::Enum(m_sym, SymTagBaseClass, EnumBase, &strBase);
 
     // header
-    str->Format(L"<font class=\"key\">%s</font> %s%s "
-        L"<font class=\"comment\">// 0x%x</font><br />{<br />\r\n",
-        tmp, (PCWSTR)bsName, (PCWSTR)strBase, (DWORD)size);
+    wstringstream stm(L"<font class=\"key\">");
+    stm << tmp << L"</font> " << bsName << strBase
+        << L" <font class=\"comment\">// 0x" << hex << size << L"</font><br />{<br />\r\n";
+    *str = stm.str();
     return TRUE;
 }
 
-BOOL CSymUDT::GetType(__out LStringW* str)
+BOOL CSymUDT::GetType(__out wstring* str)
 {
     UdtKind enKind = (UdtKind)-1;
     HRESULT hr = m_sym->get_udtKind((PDWORD)&enKind);
@@ -397,19 +407,21 @@ BOOL CSymUDT::GetType(__out LStringW* str)
         kind = L"union";
         break;
     default:
-        PDLASSERT(FALSE);
+        ATLASSERT(false);
     }
 
     DWORD id;
-    LBStr bsName;
+    CComBSTR bsName;
     m_sym->get_symIndexId(&id);
     m_sym->get_name(&bsName);
-    str->Format(L"<font class=\"key\">%s</font> <a href=\"sym://%d\">%s</a>",
-        kind, id, (BSTR)bsName);
+
+    wstringstream stm(L"<font class=\"key\">");
+    stm << kind << L"</font> <a href=\"sym://" << id << L"\">" << bsName << L"</a>";
+    *str = stm.str();
     return TRUE;
 }
 
-BOOL CSymEnum::Format(__out LStringW* str)
+BOOL CSymEnum::Format(__out wstring* str)
 {
     // header
     GetHeader(str);
@@ -422,45 +434,48 @@ BOOL CSymEnum::Format(__out LStringW* str)
     return TRUE;
 }
 
-BOOL CSymEnum::GetHeader(__out LStringW* str)
+BOOL CSymEnum::GetHeader(__out wstring* str)
 {
-    LBStr bsName;
+    CComBSTR bsName;
     m_sym->get_name(&bsName);
-    str->Format(L"<font class=\"key\">enum</font> %s<br />{ <br />\r\n",
-        (PCWSTR)bsName);
+    str->assign(L"<font class=\"key\">enum</font> ");
+    str->append(bsName);
+    str->append(L"<br />{ <br />\r\n");
     return TRUE;
 }
 
-BOOL CSymEnum::GetType(__out LStringW* str)
+BOOL CSymEnum::GetType(__out wstring* str)
 {
-    LBStr bsName;
+    CComBSTR bsName;
     m_sym->get_name(&bsName);
 
     DWORD id;
     m_sym->get_symIndexId(&id);
-    str->Format(L"<font class=\"key\">enum</font> <a href=\"sym://%d\">%s</a>",
-        id, (PCWSTR)bsName);
+
+    wstringstream stm(L"<font class=\"key\">enum</font> <a href=\"sym://");
+    stm << id << L"\">" << bsName << L"</a>";
+    *str = stm.str();
     return TRUE;
 }
 
 BOOL CSymEnum::OnEnum(IDiaSymbol* sym, PVOID param)
 {
-    LStringW* str = (LStringW*)param;
+    wstring* str = (wstring*)param;
 
-    LStringW strMember;
-    LVariant v;
-    LBStr bsName;
+    CComVariant v;
+    CComBSTR bsName;
     sym->get_name(&bsName);
     sym->get_value(&v);
-    strMember.Format(L"&nbsp;&nbsp;&nbsp;&nbsp;%s = 0x%x;<br />\r\n",
-        (PCWSTR)bsName, v.intVal);
-    *str += strMember;
+
+    wstringstream stm(L"&nbsp;&nbsp;&nbsp;&nbsp;");
+    stm << bsName << L" = 0x" << hex << v.intVal << L";<br />\r\n";
+    *str += stm.str();
     return FALSE;
 }
 
-void CSymFunctionType::Declare(__out LStringW* str, __in PCWSTR lpName)
+void CSymFunctionType::Declare(__out wstring* str, __in PCWSTR lpName)
 {
-    LStringW strRet;
+    wstring strRet;
     BOOL bCon = FALSE;
     m_sym->get_constructor(&bCon);
     if (!bCon && L'~' != *lpName)
@@ -474,12 +489,15 @@ void CSymFunctionType::Declare(__out LStringW* str, __in PCWSTR lpName)
         strRet += L" ";
     }
 
-    LStringW strArgs;
+    wstring strArgs;
     CSym::Enum(m_sym, SymTagFunctionArgType, EnumArg, &strArgs);
-    if (0 == strArgs.GetLength())
+    if (0 == strArgs.length()) {
         strArgs = L"<font class=\"key\">void</font>";
+    }
 
-    str->Format(L"%s%s(%s)", (PCWSTR)strRet, lpName, (PCWSTR)strArgs);
+    str->assign(strRet);
+    str->append(lpName);
+    str->append(1, L'(').append(strArgs).append(1, L')');
 }
 
 PCWSTR CSymFunctionType::GetCallType(IDiaSymbol* sym)
@@ -499,20 +517,20 @@ PCWSTR CSymFunctionType::GetCallType(IDiaSymbol* sym)
 
 BOOL CSymFunctionType::EnumArg(IDiaSymbol* sym, PVOID param)
 {
-    LStringW* str = (LStringW*)param;
+    wstring* str = (wstring*)param;
 
-    LStringW strArg;
+    wstring strArg;
     CSym* symArg = CSym::NewSym(sym);
     symArg->Format(&strArg);
     CSym::Delete(symArg);
 
-    if (0 != str->GetLength())
+    if (!str->empty())
         *str += L", ";
     *str += strArg;
     return FALSE;
 }
 
-void CSymPointerType::Declare(__out LStringW* str, __in PCWSTR lpName)
+void CSymPointerType::Declare(__out wstring* str, __in PCWSTR lpName)
 {
     SymPtr type;
     HRESULT hr = m_sym->get_type(&type);
@@ -525,17 +543,21 @@ void CSymPointerType::Declare(__out LStringW* str, __in PCWSTR lpName)
         return CSym::Declare(str, lpName);
 
     PCWSTR call = CSymFunctionType::GetCallType(type);
-    LStringW strName;
-    if (L'\0' == *call)
-        strName.Format(L"(*%s)", lpName);
-    else
-        strName.Format(L"(%s * %s)", call, lpName);
+    wstring strName(1, L'(');
+    if (L'\0' == *call) {
+        strName.append(1, L'*');
+    } else {
+        strName.append(call);
+        strName.append(L" * ");
+    }
+    strName.append(lpName).append(1, L')');
+
     CSym* sym = CSym::NewSym(type);
-    sym->Declare(str, strName);
+    sym->Declare(str, strName.c_str());
     CSym::Delete(sym);
 }
 
-BOOL CSymPointerType::GetType(__out LStringW* str)
+BOOL CSymPointerType::GetType(__out wstring* str)
 {
     SymPtr pointee;
     HRESULT hr = m_sym->get_type(&pointee);
@@ -543,21 +565,20 @@ BOOL CSymPointerType::GetType(__out LStringW* str)
         return FALSE;
 
     CSym* type = CSym::NewSym(pointee);
-    LStringW strType;
-    type->GetType(&strType);
+    type->GetType(str);
     CSym::Delete(type);
 
     BOOL bRef = FALSE;
     m_sym->get_reference(&bRef);
-    if (bRef)
-        strType += L"&";
-    else
-        strType += L"*";
-    str->Attach(strType.Detach());
+    if (bRef) {
+        str->append(1, L'&');
+    } else {
+        str->append(1, L'*');
+    }
     return TRUE;
 }
 
-void CSymPointerType::TypeDefine(__out LStringW* str, __in PCWSTR lpType)
+void CSymPointerType::TypeDefine(__out wstring* str, __in PCWSTR lpType)
 {
     SymPtr type;
     HRESULT hr = m_sym->get_type(&type);
@@ -570,21 +591,25 @@ void CSymPointerType::TypeDefine(__out LStringW* str, __in PCWSTR lpType)
         return CSym::TypeDefine(str, lpType);
 
     PCWSTR call = CSymFunctionType::GetCallType(type);
-    LStringW strName;
-    if (L'\0' == *call)
-        strName.Format(L"(*%s)", lpType);
-    else
-        strName.Format(L"(%s * %s)", call, lpType);
+    wstring strName(1, L'(');
+    if (L'\0' == *call) {
+        strName.append(1, L'*');
+    } else {
+        strName.append(call);
+        strName.append(L" * ");
+    }
+    strName.append(lpType).append(1, ')');
 
-    LStringW strType;
+    wstring strType;
     CSym* sym = CSym::NewSym(type);
-    sym->Declare(&strType, strName);
+    sym->Declare(&strType, strName.c_str());
     CSym::Delete(sym);
 
-    str->Format(L"<font class=\"key\">typedef</font> %s;", (PCWSTR)strType);
+    str->assign(L"<font class=\"key\">typedef</font> ");
+    str->append(strType).append(1, ';');
 }
 
-void CSymArrayType::Declare(__out LStringW* str, __in PCWSTR lpName)
+void CSymArrayType::Declare(__out wstring* str, __in PCWSTR lpName)
 {
     SymPtr type;
     m_sym->get_type(&type);
@@ -594,15 +619,15 @@ void CSymArrayType::Declare(__out LStringW* str, __in PCWSTR lpName)
     m_sym->get_length(&arrsize);
     type->get_length(&elemsize);
 
-    LStringW strArray;
-    strArray.Format(L"%s[0x%x]", lpName, (ULONG)(arrsize / elemsize));
+    wstringstream stm(lpName);
+    stm << L"[0x" << hex << arrsize / elemsize << ']';
 
     CSym* sym = CSym::NewSym(type);
-    sym->Declare(str, strArray);
+    sym->Declare(str, stm.str().c_str());
     CSym::Delete(sym);
 }
 
-BOOL CSymBaseType::GetType(__out LStringW* str)
+BOOL CSymBaseType::GetType(__out wstring* str)
 {
     BasicType enType = btNoType;
     HRESULT hr = m_sym->get_baseType((LPDWORD)&enType);
@@ -713,22 +738,22 @@ BOOL CSymBaseType::GetType(__out LStringW* str)
     return TRUE;
 }
 
-BOOL CSymTypedef::Format(__out LStringW* str)
+BOOL CSymTypedef::Format(__out wstring* str)
 {
-    LBStr bsName;
+    CComBSTR bsName;
     m_sym->get_name(&bsName);
 
     SymPtr type;
     m_sym->get_type(&type);
 
-    LStringW strType;
+    wstring strType;
     CSym* sym = CSym::NewSym(type);
     sym->TypeDefine(str, bsName);
     CSym::Delete(sym);
     return TRUE;
 }
 
-BOOL CSymFunctionArgType::Format(__out LStringW* str)
+BOOL CSymFunctionArgType::Format(__out wstring* str)
 {
     SymPtr type;
     m_sym->get_type(&type);

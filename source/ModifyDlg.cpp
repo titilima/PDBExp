@@ -33,7 +33,7 @@ BOOL CModifyDlg::cbAddMember(IDiaSymbol* pCurSymbol, PVOID pParam)
 {
     CModifyDlg* pThis = (CModifyDlg*)pParam;
 
-    LBStr bsName;
+    CComBSTR bsName;
     pCurSymbol->get_name(&bsName);
 
     int cnt = pThis->m_list.GetItemCount();
@@ -66,7 +66,7 @@ BOOL CModifyDlg::cbEnumModify(IDiaSymbol* pCurSymbol, LPVOID pParam)
         if (p->This->m_list.GetCheckState(p->idx))
         {
             LVariant v;
-            LBStr bsName;
+            CComBSTR bsName;
             pCurSymbol->get_name(&bsName);
             pCurSymbol->get_value(&v);
             str.Format(L"&nbsp;&nbsp;&nbsp;&nbsp;%s = 0x%x;<br />\r\n",

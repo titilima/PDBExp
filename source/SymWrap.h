@@ -2,15 +2,17 @@
 // FileName:    SymWrap.h
 // Created:     2009/07/17
 // Author:      titilima
-// CopyRight:   Titi Studio (?) 2001-2009
+// CopyRight:   Titi Studio (?) 2001-2013
 //-----------------------------------------------------------------------------
-// Information: IDiaSymbol 各辅助类
+// Information: IDiaSymbol Wrappers
 ///////////////////////////////////////////////////////////////////////////////
+
+#ifndef SYMWRAP_H
+#define SYMWRAP_H
 
 #pragma once
 
 #include "diacommon.h"
-#include <pdl_string.h>
 
 typedef BOOL (*EnumProc)(IDiaSymbol* curSym, PVOID param);
 
@@ -21,7 +23,7 @@ protected:
     ~CSym(void);
 public:
     // 获取符号的声明格式
-    virtual void Declare(__out LStringW* str, __in PCWSTR lpName);
+    virtual void Declare(__out wstring* str, __in PCWSTR lpName);
     // 销毁一个符号
     static void Delete(__in CSym* sym);
     // 枚举指定类别的符号
@@ -29,15 +31,15 @@ public:
         __in enum SymTagEnum enTag, __in EnumProc cbEnum,
         __in_opt PVOID param);
     // 格式化符号
-    virtual BOOL Format(__out LStringW* str);
+    virtual BOOL Format(__out wstring* str);
     // 获取头部
-    virtual BOOL GetHeader(__out LStringW* str);
+    virtual BOOL GetHeader(__out wstring* str);
     // 获取符号的类型名
-    virtual BOOL GetType(__out LStringW* str);
+    virtual BOOL GetType(__out wstring* str);
     // 创建一个符号
     static CSym* NewSym(__in IDiaSymbol* sym);
     // 获取符号的 typedef 信息
-    virtual void TypeDefine(__out LStringW* str, __in PCWSTR lpType);
+    virtual void TypeDefine(__out wstring* str, __in PCWSTR lpType);
 protected:
     IDiaSymbol* m_sym;
 };
@@ -48,7 +50,7 @@ class CSymFunction : public CSym
 protected:
     CSymFunction(__in IDiaSymbol* sym) : CSym(sym) { /* Nothing */ }
 public:
-    BOOL Format(__out LStringW* str);
+    BOOL Format(__out wstring* str);
 };
 
 class CSymData : public CSym
@@ -57,7 +59,7 @@ class CSymData : public CSym
 protected:
     CSymData(__in IDiaSymbol* sym) : CSym(sym) { /* Nothing */ }
 public:
-    BOOL Format(__out LStringW* str);
+    BOOL Format(__out wstring* str);
 };
 
 class CSymUDT : public CSym
@@ -65,16 +67,16 @@ class CSymUDT : public CSym
     friend class CSym;
     struct SymAccess
     {
-        LStringW strPublic;
-        LStringW strProtected;
-        LStringW strPrivate;
+        wstring strPublic;
+        wstring strProtected;
+        wstring strPrivate;
     };
 protected:
     CSymUDT(__in IDiaSymbol* sym) : CSym(sym) { /* Nothing */ }
 public:
-    BOOL Format(__out LStringW* str);
-    BOOL GetHeader(__out LStringW* str);
-    BOOL GetType(__out LStringW* str);
+    BOOL Format(__out wstring* str);
+    BOOL GetHeader(__out wstring* str);
+    BOOL GetType(__out wstring* str);
 private:
     static BOOL EnumBase(IDiaSymbol* sym, PVOID param);
     static BOOL EnumMember(IDiaSymbol* sym, PVOID param);
@@ -86,9 +88,9 @@ class CSymEnum : public CSym
 protected:
     CSymEnum(__in IDiaSymbol* sym) : CSym(sym) { /* Nothing */ }
 public:
-    BOOL Format(__out LStringW* str);
-    BOOL GetHeader(__out LStringW* str);
-    BOOL GetType(__out LStringW* str);
+    BOOL Format(__out wstring* str);
+    BOOL GetHeader(__out wstring* str);
+    BOOL GetType(__out wstring* str);
 private:
     static BOOL OnEnum(IDiaSymbol* sym, PVOID param);
 };
@@ -99,7 +101,7 @@ class CSymFunctionType : public CSym
 protected:
     CSymFunctionType(__in IDiaSymbol* sym) : CSym(sym) { /* Nothing */ }
 public:
-    void Declare(__out LStringW* str, __in PCWSTR lpName);
+    void Declare(__out wstring* str, __in PCWSTR lpName);
     static PCWSTR GetCallType(IDiaSymbol* sym);
 private:
     static BOOL EnumArg(IDiaSymbol* sym, PVOID param);
@@ -111,9 +113,9 @@ class CSymPointerType : public CSym
 protected:
     CSymPointerType(__in IDiaSymbol* sym) : CSym(sym) { /* Nothing */ }
 public:
-    void Declare(__out LStringW* str, __in PCWSTR lpName);
-    BOOL GetType(__out LStringW* str);
-    void TypeDefine(__out LStringW* str, __in PCWSTR lpType);
+    void Declare(__out wstring* str, __in PCWSTR lpName);
+    BOOL GetType(__out wstring* str);
+    void TypeDefine(__out wstring* str, __in PCWSTR lpType);
 };
 
 class CSymArrayType : public CSym
@@ -122,7 +124,7 @@ class CSymArrayType : public CSym
 protected:
     CSymArrayType(__in IDiaSymbol* sym) : CSym(sym) { /* Nothing */ }
 public:
-    void Declare(__out LStringW* str, __in PCWSTR lpName);
+    void Declare(__out wstring* str, __in PCWSTR lpName);
 };
 
 class CSymBaseType : public CSym
@@ -131,7 +133,7 @@ class CSymBaseType : public CSym
 protected:
     CSymBaseType(__in IDiaSymbol* sym) : CSym(sym) { /* Nothing */ }
 public:
-    BOOL GetType(__out LStringW* str);
+    BOOL GetType(__out wstring* str);
 };
 
 
@@ -141,7 +143,7 @@ class CSymTypedef : public CSym
 protected:
     CSymTypedef(__in IDiaSymbol* sym) : CSym(sym) { /* Nothing */ }
 public:
-    BOOL Format(__out LStringW* str);
+    BOOL Format(__out wstring* str);
 };
 
 class CSymFunctionArgType : public CSym
@@ -150,5 +152,7 @@ class CSymFunctionArgType : public CSym
 protected:
     CSymFunctionArgType(__in IDiaSymbol* sym) : CSym(sym) { /* Nothing */ }
 public:
-    BOOL Format(__out LStringW* str);
+    BOOL Format(__out wstring* str);
 };
+
+#endif // SYMWRAP_H

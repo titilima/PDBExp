@@ -26,6 +26,14 @@ extern CAppModule _Module;
 #include <atlddx.h>
 
 /**
+ * STL Headers
+ */
+
+#include <string>
+
+using namespace std;
+
+/**
  * Local Headers
  */
 

@@ -88,9 +88,9 @@ private:
     HRESULT STDMETHODCALLTYPE FilterDataObject(__in IDataObject *pDO,
         __out IDataObject **ppDORet);
 private:
-    LComPtr<IWebBrowser2> m_pWB2;
+    CComPtr<IWebBrowser2> m_pWB2;
     LComQIPtr<IHTMLDocument2> m_pDoc;
-    LComPtr<IHTMLElement> m_pBody;
+    CComPtr<IHTMLElement> m_pBody;
     IDiaSymbol *m_pCurSymbol;
     CEventHandler *m_pEventHandler;
     BOOL m_bEnable;
