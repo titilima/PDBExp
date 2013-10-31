@@ -10,3 +10,4 @@
 #include "LvStd.h"
 
 CAppModule _Module;
+basic_string<TCHAR> g_strIni;

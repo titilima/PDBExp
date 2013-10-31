@@ -39,4 +39,10 @@ using namespace std;
 
 #include "resource.h"
 
+/**
+ * Global Variables
+ */
+
+extern basic_string<TCHAR> g_strIni;
+
 #endif // LVSTD_H

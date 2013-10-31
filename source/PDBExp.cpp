@@ -1,29 +1,22 @@
 ///////////////////////////////////////////////////////////////////////////////
-// 文件名：  PDBExp.cpp
-// 创建时间：2007-10-28
-// 作者：    李马
-// 版权所有：Titi Studio (?) 2001-2007
+// FileName:    PDBExp.cpp
+// Created:     2007/10/28
+// Author:      titilima
+// CopyRight:   Titi Studio (?) 2001-2013
 //-----------------------------------------------------------------------------
-// 说明：    程序入口
+// Information: Program Entry
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <pdl_base.h>
-#include <pdl_module.h>
-#include <pdl_commctrl.h>
-#include <pdl_com.h>
+#include "LvStd.h"
 #include "MainFrame.h"
 #include "Version.h"
 
 #include "resource.h"
 
-int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                     LPTSTR lpCmdLine, int nShowCmd)
+int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE, PTSTR, int nShowCmd)
 {
-    LComCtlInit comctl(ICC_WIN95_CLASSES);
-    LComInit    com;
-    LOleInit    ole;
-
-    LAppModule* theApp = LAppModule::Initialize(hInstance);
+    AtlInitCommonControls(ICC_WIN95_CLASSES);
+    _Module.Init(NULL, hInstance);
 
     WNDCLASS wc = { 0 };
     wc.hbrBackground = PDL_SYSBRUSH(COLOR_BTNFACE);
@@ -58,6 +51,6 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         }
     }
 
-    LAppModule::Destroy();
+    _Module.Term();
     return (int)msg.wParam;
 }

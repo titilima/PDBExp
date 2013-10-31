@@ -26,7 +26,6 @@ public:
     END_MSG_MAP()
     BEGIN_DDX_MAP(CAboutDlg)
         DDX_CONTROL(IDC_ST_HOMEPAGE, m_stHome)
-        DDX_CONTROL(IDC_ST_MAIL, m_stMail)
     END_DDX_MAP()
 private:
     BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
@@ -35,5 +34,4 @@ private:
     void OnOKCancel(UINT uNotifyCode, int nID, CWindow wndCtl);
 private:
     CHyperLink m_stHome;
-    CHyperLink m_stMail;
 };

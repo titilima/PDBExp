@@ -25,7 +25,6 @@
 #define IDC_EDT_EXPCNT                  1010
 #define IDC_SPIN                        1011
 #define IDC_ST_VER                      1012
-#define IDC_ST_MAIL                     1013
 #define IDC_ST_HOMEPAGE                 1014
 #define IDC_BTN_ALL                     1015
 #define IDC_EDIT_FILE                   1016
