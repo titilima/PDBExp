@@ -1,16 +1,16 @@
 ///////////////////////////////////////////////////////////////////////////////
-// 文件名：  CmbEx.h
-// 创建时间：2007-10-28
-// 作者：    李马
-// 版权所有：Titi Studio (?) 2001-2007
+// FileName:    CmbEx.h
+// Created:     2013/11/05
+// Author:      titilima
+// CopyRight:   Titi Studio (?) 2001-2013
 //-----------------------------------------------------------------------------
-// 说明：    PDB Explorer ComboBox类
+// Information: PDB Explorer ComboBox
 ///////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef CMBEX_H
+#define CMBEX_H
 
-#include <pdl_window.h>
-#include <pdl_ctrl.h>
+#pragma once
 
 class CLbEx : public LListBox, protected LSubclassWnd
 {
@@ -21,7 +21,7 @@ protected:
     void OnLButtonDblClk(UINT uFlags, int x, int y, BOOL& bHandled);
 };
 
-class CCmbEx : public LComboBox, protected LSubclassWnd
+class CCmbEx : public CWindowImpl<CComboBox>
 {
     PDL_DECLARE_WINCLASS(CCmbEx)
 public:
@@ -34,6 +34,8 @@ protected:
     void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags, BOOL& bHandled);
     void OnCommand(WORD wNotifyCode, WORD wID, HWND hWndCtrl, BOOL& bHandled);
 private:
-    CLbEx m_list;
-    LEdit m_edit;
+    CContainedWindow<CListBox> m_list;
+    CEdit m_edit;
 };
+
+#endif // CMBEX_H
