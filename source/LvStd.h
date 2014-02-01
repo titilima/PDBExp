@@ -31,6 +31,8 @@ extern CAppModule _Module;
 
 #include <string>
 
+typedef std::basic_string<TCHAR> String;
+
 using namespace std;
 
 /**

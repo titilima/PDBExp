@@ -12,29 +12,28 @@
 
 #pragma once
 
-class CLbEx : public LListBox, protected LSubclassWnd
+class CCmbEx : public CWindowImpl<CCmbEx, CComboBox>
 {
-    PDL_DECLARE_WINCLASS(CLbEx)
 public:
-    CLbEx& operator=(__in HWND hWnd);
-protected:
-    void OnLButtonDblClk(UINT uFlags, int x, int y, BOOL& bHandled);
-};
-
-class CCmbEx : public CWindowImpl<CComboBox>
-{
-    PDL_DECLARE_WINCLASS(CCmbEx)
+    CCmbEx(void);
+    DECLARE_WND_CLASS(_T("PDBExp_ComboBox"))
 public:
-    BOOL Create(__in PCTSTR lpWindowName, __in DWORD dwStyle,
-        __in LPCRECT lpRect, __in HWND hWndParent, __in UINT nID,
-        __in PVOID lpParam);
+    BOOL Create(DWORD dwStyle, LPRECT lpRect, HWND hWndParent, UINT nID);
 public:
-    int FindString(__in LPCTSTR lpszString);
-protected:
-    void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags, BOOL& bHandled);
-    void OnCommand(WORD wNotifyCode, WORD wID, HWND hWndCtrl, BOOL& bHandled);
+    int FindString(PCTSTR lpszString);
+public:
+    BEGIN_MSG_MAP_EX(CCmbEx)
+        MSG_WM_KEYDOWN(OnKeyDown)
+        COMMAND_CODE_HANDLER_EX(EN_UPDATE, OnEditUpdate)
+    ALT_MSG_MAP(1)
+        MSG_WM_LBUTTONDBLCLK(OnListLButtonDblClk)
+    END_MSG_MAP()
 private:
-    CContainedWindow<CListBox> m_list;
+    void OnEditUpdate(UINT uNotifyCode, int nID, CWindow wndCtl);
+    void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+    void OnListLButtonDblClk(UINT nFlags, CPoint point);
+private:
+    CContainedWindowT<CListBox> m_list;
     CEdit m_edit;
 };
 
