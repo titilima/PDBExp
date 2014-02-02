@@ -1,19 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-// 文件名：  MainFrame.cpp
-// 创建时间：2007-10-28
-// 作者：    李马
-// 版权所有：Titi Studio (?) 2001-2007
+// FileName:    MainFrame.cpp
+// Created:     2007/10/28
+// Author:      titilima
+// CopyRight:   Titi Studio (?) 2001-2007
 //-----------------------------------------------------------------------------
-// 说明：    主框架窗口实现
+// Information: Main Frame Window Implementation
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <pdl_base.h>
-#include <pdl_module.h>
+#include "LvStd.h"
 #include "MainFrame.h"
-#include <pdl_com.h>
-#include <pdl_comdlg.h>
-#include <pdl_menu.h>
-#include <pdl_file.h>
 #include "ModifyDlg.h"
 #include "SettingDlg.h"
 #include "AboutDlg.h"

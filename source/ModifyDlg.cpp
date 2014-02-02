@@ -250,7 +250,7 @@ BOOL CModifyDlg::OnInitDialog(HWND hCtrlFocus, LPARAM lParam, BOOL& bHandled)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void CModifyDlg::OnNavigateComplete(void)
+void CModifyDlg::OnDocumentComplete(void)
 {
     DumpModified();
 }

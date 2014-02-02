@@ -1,19 +1,18 @@
 ///////////////////////////////////////////////////////////////////////////////
-// 文件名：  MainFrame.h
-// 创建时间：2007-10-28
-// 作者：    李马
-// 版权所有：Titi Studio (?) 2001-2007
+// FileName:    MainFrame.h
+// Created:     2007/10/28
+// Author:      titilima
+// CopyRight:   Titi Studio (?) 2001-2007
 //-----------------------------------------------------------------------------
-// 说明：    主框架窗口类
+// Information: Main Frame Window Class
 ///////////////////////////////////////////////////////////////////////////////
+
+#ifndef MAINFRAME_H
+#define MAINFRAME_H
 
 #pragma once
 
 #include "CmbEx.h"
-#include <pdl_ctrlext.h>
-#include <pdl_commctrl.h>
-#include <pdl_parser.h>
-#include <pdl_container.h>
 #include "DetailView.h"
 #include "DiaHelper.h"
 #include "DownLoader.h"
@@ -75,3 +74,5 @@ private:
     int m_nMaxHistory;
     CDownLoader m_DnLdr;
 };
+
+#endif // MAINFRAME_H

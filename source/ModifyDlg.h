@@ -32,7 +32,7 @@ private:
     void OnClose(BOOL& bHandled);
     BOOL OnInitDialog(HWND hCtrlFocus, LPARAM lParam, BOOL& bHandled);
 private:
-    void OnNavigateComplete(void);
+    void OnDocumentComplete(void);
 private:
     LListView m_list;
     CDetailView m_view;
