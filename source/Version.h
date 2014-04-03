@@ -9,10 +9,10 @@
 
 #pragma once
 
-#define PDBEXP_VER          1.2.0.6
-#define PDBEXP_RCVER        1,2,0,6
-#define PDBEXP_VERSTR       "1.2.0.6"
-#define PDBEXP_RCVERSTR     "1,2,0,6"
+#define PDBEXP_VER          1.2.0.7
+#define PDBEXP_RCVER        1,2,0,7
+#define PDBEXP_VERSTR       "1.2.0.7"
+#define PDBEXP_RCVERSTR     "1,2,0,7"
 
 #define PDBEXP_WNDCAPTION   _T("PDB Explorer v")##_T(PDBEXP_VERSTR)
 

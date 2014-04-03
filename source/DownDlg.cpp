@@ -7,20 +7,16 @@
 // 说明：    下载对话框实现
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <pdl_base.h>
+#include "LvStd.h"
 #include "DownDlg.h"
-#include <pdl_comdlg.h>
 #include <ShlObj.h>
-
-#include "resource.h"
 
 #define SIGN_LEN    64
 #define BUF_SIZE    4096
 
-CDownDlg::CDownDlg(__in CDownLoader* pDnLdr, __in LIniParser* pIni) : LDialog(IDD_DLG_DOWNLOAD)
+CDownDlg::CDownDlg(CDownLoader* pDnLdr) : m_pDnLdr(pDnLdr)
 {
     m_pDnLdr = pDnLdr;
-    m_pIni = pIni;
 
     m_type = ErrorSign;
     m_pSign = new TCHAR[SIGN_LEN];

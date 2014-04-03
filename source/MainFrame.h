@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include <list>
+#include <vector>
 
 #include <atlsplit.h>
 
@@ -33,7 +33,6 @@ class CMainFrame : public CWindowImpl<CMainFrame, CWindow, PDBExpFrame>
 {
 public:
     CMainFrame(void);
-    ~CMainFrame(void);
     DECLARE_WND_CLASS_EX(_T("PDBExp"), 0, COLOR_BTNFACE)
 private:
     void AddExpItem(__in IDiaSymbol* pSymbol);
@@ -81,7 +80,7 @@ private:
     void OnSymbolChange(DWORD id);
     void OnNewFileDrop(LPCWSTR lpFileName);
 private:
-    HFONT m_hFont;
+    CFont m_font;
     CToolBarCtrl m_tb;
     CImageList m_iml;
     CCmbEx m_cbSymbols;
@@ -90,8 +89,8 @@ private:
     CStatusBarCtrl m_status;
     CDiaHelper m_dia;
     std::wstring m_wsIni;
-    std::list<EXPINFO> m_lstHistory;
-    std::list<EXPINFO>::iterator m_itCurrent;
+    std::vector<EXPINFO> m_history;
+    size_t m_nHistoryPos;
     int m_nMaxHistory;
     CDownLoader m_DnLdr;
 };

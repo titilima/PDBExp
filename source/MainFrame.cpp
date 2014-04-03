@@ -32,42 +32,41 @@ const TBBUTTON g_btns[TB_BTN_COUNT] = {
 };
 
 CMainFrame::CMainFrame(void) : m_DnLdr(_T("Microsoft-Symbol-Server/6.9.0003.113"))
+                             , m_nHistoryPos(-1)
 {
     LOGFONT lf  = { 0 };
     lstrcpy(lf.lfFaceName, _T("Courier New"));
     lf.lfHeight = -12;
     lf.lfWeight = FW_NORMAL;
-    m_hFont = ::CreateFontIndirect(&lf);
+    m_font.CreateFontIndirect(&lf);
 
-    m_ini.Open(_T("PDBExp.ini"));
-    m_nMaxHistory = m_ini.GetInt("Setting", "MaxHistory", 20);
-    if (m_nMaxHistory < 10)
+    TCHAR szIni[MAX_PATH];
+    GetModuleFileName(NULL, szIni, MAX_PATH);
+    PathAppend(szIni, _T("PDBExp.ini"));
+    g_strIni = szIni;
+
+    m_nMaxHistory = GetPrivateProfileInt(_T("Setting"), _T("MaxHistory"), 20, g_strIni.c_str());
+    if (m_nMaxHistory < 10) {
         m_nMaxHistory = 10;
-    if (30 < m_nMaxHistory)
+    }
+    if (30 < m_nMaxHistory) {
         m_nMaxHistory = 30;
-    m_itCurrent = NULL;
-    m_lstHistory.Create(sizeof(EXPINFO), NULL, DestroyExpItem);
-}
-
-CMainFrame::~CMainFrame(void)
-{
-    if (NULL != m_hFont)
-        ::DeleteObject(m_hFont);
+    }
 }
 
 void CMainFrame::AddExpItem(__in IDiaSymbol* pSymbol)
 {
     EXPINFO info;
     info.pSymbol = pSymbol;
-    if (m_itCurrent == m_lstHistory.GetTailIterator())
+    if (m_nHistoryPos + 1 >= m_history.size())
     {
         // 如果是浏览末尾，则加入末尾项
-        m_lstHistory.AddTail(&info);
-        if ((DWORD)m_nMaxHistory < m_lstHistory.GetCount())
+        m_history.push_back(info);
+        if ((DWORD)m_nMaxHistory < m_history.size())
         {
             // 如果超过了最大限制，则删除最早项
-            LIterator itDel = m_lstHistory.GetHeadIterator();
-            m_lstHistory.Remove(itDel);
+            LIterator itDel = m_history.GetHeadIterator();
+            m_history.Remove(itDel);
         }
     }
     else
@@ -75,16 +74,16 @@ void CMainFrame::AddExpItem(__in IDiaSymbol* pSymbol)
         // 对于其余的情况，则删除当前浏览项后所有项
         if (NULL != m_itCurrent)
         {
-            LIterator itDel = m_lstHistory.GetTailIterator();
+            LIterator itDel = m_history.GetTailIterator();
             while (itDel != m_itCurrent)
             {
-                m_lstHistory.Remove(itDel);
-                itDel = m_lstHistory.GetTailIterator();
+                m_history.Remove(itDel);
+                itDel = m_history.GetTailIterator();
             }
         }
-        m_lstHistory.AddTail(&info);
+        m_history.AddTail(&info);
     }
-    m_itCurrent = m_lstHistory.GetTailIterator();
+    m_itCurrent = m_history.GetTailIterator();
     CheckCommandState();
 
     LMenu menu = GetMenu();
@@ -161,7 +160,7 @@ void CMainFrame::cbDumpString(LPCWSTR pszString, LPVOID pParam)
 void CMainFrame::CheckCommandState(void)
 {
     LMenu menu = GetMenu();
-    if (NULL == m_itCurrent || m_lstHistory.GetHeadIterator() == m_itCurrent)
+    if (NULL == m_itCurrent || m_history.GetHeadIterator() == m_itCurrent)
     {
         m_tb.EnableButton(ID_BACK, FALSE);
         menu.EnableItem(ID_BACK, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
@@ -172,7 +171,7 @@ void CMainFrame::CheckCommandState(void)
         menu.EnableItem(ID_BACK, MF_BYCOMMAND | MF_ENABLED);
     }
 
-    if (NULL == m_itCurrent || m_lstHistory.GetTailIterator() == m_itCurrent)
+    if (NULL == m_itCurrent || m_history.GetTailIterator() == m_itCurrent)
     {
         m_tb.EnableButton(ID_NEXT, FALSE);
         menu.EnableItem(ID_NEXT, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
@@ -234,7 +233,7 @@ void CMainFrame::DumpSymbol(__in IDiaSymbol* pSymbol)
 
 void CMainFrame::Open(__in LPCWSTR pszPdbFile)
 {
-    m_lstHistory.Clear();
+    m_history.Clear();
     m_vDetail.Clear();
     m_itCurrent = NULL;
     if (m_dia.OpenPDB(pszPdbFile))
@@ -403,12 +402,12 @@ void CMainFrame::OnAbout(void)
 
 void CMainFrame::OnBack(void)
 {
-    if (m_itCurrent != m_lstHistory.GetHeadIterator())
+    if (m_itCurrent != m_history.GetHeadIterator())
     {
-        m_lstHistory.GetPrevIterator(&m_itCurrent);
+        m_history.GetPrevIterator(&m_itCurrent);
 
         EXPINFO info;
-        m_lstHistory.GetAt(m_itCurrent, &info);
+        m_history.GetAt(m_itCurrent, &info);
         DumpSymbol(info.pSymbol);
     }
     CheckCommandState();
@@ -443,18 +442,18 @@ void CMainFrame::OnModify(void)
     m_ini.GetString("Setting", "Template", L"", &strTemplate);
 
     EXPINFO info;
-    m_lstHistory.GetAt(m_itCurrent, &info);
+    m_history.GetAt(m_itCurrent, &info);
     CModifyDlg dlg(&m_dia, info.pSymbol);
     dlg.DoModal(m_hWnd, (LPARAM)strTemplate.Detach());
 }
 
 void CMainFrame::OnNext(void)
 {
-    if (m_itCurrent != m_lstHistory.GetTailIterator())
+    if (m_itCurrent != m_history.GetTailIterator())
     {
-        m_lstHistory.GetNextIterator(&m_itCurrent);
+        m_history.GetNextIterator(&m_itCurrent);
         EXPINFO info;
-        m_lstHistory.GetAt(m_itCurrent, &info);
+        m_history.GetAt(m_itCurrent, &info);
         DumpSymbol(info.pSymbol);
     }
     CheckCommandState();

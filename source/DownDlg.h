@@ -9,17 +9,17 @@
 
 #pragma once
 
-#include <pdl_window.h>
-#include <pdl_ctrl.h>
-#include <pdl_parser.h>
 #include "DownLoader.h"
 #include "PEAnalyzer.h"
 
-class CDownDlg : public LDialog
+#include "resource.h"
+
+class CDownDlg : public CDialogImpl<CDownDlg>
 {
 public:
-    CDownDlg(__in CDownLoader* pDnLdr, __in LIniParser* pIni);
+    CDownDlg(CDownLoader* pDnLdr);
     ~CDownDlg(void);
+    enum { IDD = IDD_DLG_DOWNLOAD };
 private:
     void AddInfo(__in PCTSTR lpInfo);
     void ClearInfo(void);
@@ -35,8 +35,7 @@ private:
     BOOL OnInitDialog(HWND hCtrlFocus, LPARAM lParam, BOOL& bHandled);
 private:
     CDownLoader* m_pDnLdr;
-    LIniParser* m_pIni;
-    LEdit m_edtInfo;
+    CEdit m_edtInfo;
     SIGNTYPE m_type;
     LPTSTR m_pSign;
     LPTSTR m_pFile;
