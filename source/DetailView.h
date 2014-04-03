@@ -22,17 +22,11 @@
 #include <cvconst.h>
 #include <ExDispid.h>
 
-class CEventHandler
-{
-public:
-    virtual void OnSymbolChange(DWORD id);
-    virtual void OnDocumentComplete(void);
-    virtual void OnNewFileDrop(LPCWSTR lpFileName);
-};
+#include "DWebBrowserEvents2Info.hpp"
 
 class CDetailView : public CAxWindow
-                  , public IDispEventImpl<0, CDetailView, &DIID_DWebBrowserEvents2>
                   , public IDocHostUIHandlerDispatch
+                  , public IDispEventSimpleImpl<0, CDetailView, &DIID_DWebBrowserEvents2>
 {
 public:
     CDetailView(void);
@@ -47,17 +41,27 @@ public:
     IDiaSymbol* GetCurrentSymbol(void);
     BOOL GetText(string *pStr);
     void SetCurrentSymbol(__in IDiaSymbol* pCurSymbol);
-    BOOL SetEventHandler(__in CEventHandler* pEventHandler);
 public:
     BEGIN_SINK_MAP(CDetailView)
-        SINK_ENTRY_EX(0, DIID_DWebBrowserEvents2, DISPID_BEFORENAVIGATE2, BeforeNavigate2)
-        SINK_ENTRY_EX(0, DIID_DWebBrowserEvents2, DISPID_DOCUMENTCOMPLETE, DocumentComplete)
+        SINK_ENTRY_INFO(0, DIID_DWebBrowserEvents2, DISPID_BEFORENAVIGATE2, BeforeNavigate2, &DWebBrowserEvents2Info::BeforeNavigate2)
+        SINK_ENTRY_INFO(0, DIID_DWebBrowserEvents2, DISPID_DOCUMENTCOMPLETE, DocumentComplete, &DWebBrowserEvents2Info::DocumentComplete)
     END_SINK_MAP()
 private:
     void BeforeNavigate2(IDispatch *pDisp, VARIANT *url, VARIANT *Flags, VARIANT *TargetFrameName,
         VARIANT *PostData, VARIANT *Headers, VARIANT_BOOL *Cancel);
     void DocumentComplete(IDispatch *pDisp, VARIANT *URL);
 private:
+    // IUnknown
+    STDMETHOD(QueryInterface)(REFIID riid, void **ppvObject);
+    STDMETHOD_(ULONG, AddRef)(void);
+    STDMETHOD_(ULONG, Release)(void);
+    // IDispatch
+    STDMETHOD(GetTypeInfoCount)(UINT *pctinfo);
+    STDMETHOD(GetTypeInfo)(UINT iTInfo, LCID lcid, ITypeInfo **ppTInfo);
+    STDMETHOD(GetIDsOfNames)(REFIID riid, LPOLESTR *rgszNames, UINT cNames, LCID lcid,
+        DISPID *rgDispId);
+    STDMETHOD(Invoke)(DISPID dispIdMember, REFIID riid, LCID lcid, WORD wFlags,
+        DISPPARAMS *pDispParams, VARIANT *pVarResult, EXCEPINFO *pExcepInfo, UINT *puArgErr);
     // IDocHostUIHandlerDispatch
     STDMETHOD(ShowContextMenu)(DWORD dwID, DWORD x, DWORD y, IUnknown* pcmdtReserved,
         IDispatch* pdispReserved, HRESULT* dwRetVal);
@@ -80,6 +84,4 @@ private:
     STDMETHOD(FilterDataObject)(IUnknown* pDO, IUnknown** ppDORet);
 private:
     CComPtr<IDiaSymbol> m_pCurSymbol;
-    CEventHandler *m_pEventHandler;
-    BOOL m_bEnable;
 };

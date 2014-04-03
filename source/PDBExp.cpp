@@ -18,34 +18,19 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE, PTSTR, int nShowCmd)
     AtlInitCommonControls(ICC_WIN95_CLASSES);
     _Module.Init(NULL, hInstance);
 
-    WNDCLASS wc = { 0 };
-    wc.hbrBackground = PDL_SYSBRUSH(COLOR_BTNFACE);
-    wc.hCursor = ::LoadCursor(NULL, IDC_ARROW);
-    wc.hIcon = theApp->LoadIcon(MAKEINTRESOURCE(IDI_MAIN_ICON));
-    wc.hInstance = theApp->GetInstance();
-    wc.lpszClassName = _T("PDBExp");
-    wc.lpszMenuName = MAKEINTRESOURCE(IDR_MAIN_MENU);
-
-    CMainFrame frameWnd(&wc);
-    if (!frameWnd.Create(NULL, PDBEXP_WNDCAPTION,
-        WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
-        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-        NULL, NULL, NULL))
-    {
-        return -1;
+    CMainFrame *frameWnd = new CMainFrame;
+    if (!frameWnd->Create(NULL, NULL, PDBEXP_WNDCAPTION)) {
+        delete frameWnd;
+        return EXIT_FAILURE;
     }
 
-    frameWnd.CenterWindow(NULL, WNDPOS_HCENTER | WNDPOS_VCENTER);
-    frameWnd.ShowWindow(nShowCmd);
+    frameWnd->CenterWindow();
+    frameWnd->ShowWindow(nShowCmd);
 
     MSG msg;
-    HACCEL hAccTable = LoadAccelerators(hInstance,
-        MAKEINTRESOURCE(IDR_ACCELERATOR));
-    while (GetMessage(&msg, NULL, 0, 0))
-    {
-        if (0 == TranslateAccelerator(frameWnd.GetSafeHWND(),
-            hAccTable, &msg))
-        {
+    HACCEL hAccTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCELERATOR));
+    while (GetMessage(&msg, NULL, 0, 0)) {
+        if (0 == TranslateAccelerator(*frameWnd, hAccTable, &msg)) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }

@@ -304,6 +304,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DWebBrowserEvents2Info.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\LvStd.h"
 				>
 			</File>

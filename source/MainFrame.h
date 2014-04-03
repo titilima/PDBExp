@@ -12,20 +12,29 @@
 
 #pragma once
 
+#include <list>
+
+#include <atlsplit.h>
+
 #include "CmbEx.h"
 #include "DetailView.h"
 #include "DiaHelper.h"
 #include "DownLoader.h"
+#include "DWebBrowserEvents2Info.hpp"
 
 typedef struct _tagExpInfo {
     IDiaSymbol* pSymbol;
 } EXPINFO, *PEXPINFO;
 
-class CMainFrame : public LWindow, private CEventHandler
+typedef CWinTraits<WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS> PDBExpFrame;
+
+class CMainFrame : public CWindowImpl<CMainFrame, CWindow, PDBExpFrame>
+                 , public IDispEventSimpleImpl<0, CMainFrame, &DIID_DWebBrowserEvents2>
 {
 public:
-    CMainFrame(__in LPWNDCLASS wc);
+    CMainFrame(void);
     ~CMainFrame(void);
+    DECLARE_WND_CLASS_EX(_T("PDBExp"), 0, COLOR_BTNFACE)
 private:
     void AddExpItem(__in IDiaSymbol* pSymbol);
     static BOOL cbAddEnum(IDiaSymbol* pCurSymbol, LPVOID pParam);
@@ -37,11 +46,23 @@ private:
     void DumpSymbol(__in IDiaSymbol* pSymbol);
     void Open(__in LPCWSTR pszPdbFile);
     void Refresh(void);
+public:
+    BEGIN_MSG_MAP_EX(CMainFrame)
+    END_MSG_MAP()
+    BEGIN_SINK_MAP(CMainFrame)
+        SINK_ENTRY_INFO(0, DIID_DWebBrowserEvents2, DISPID_BEFORENAVIGATE2, BeforeNavigate2, &DWebBrowserEvents2Info::BeforeNavigate2)
+        SINK_ENTRY_INFO(0, DIID_DWebBrowserEvents2, DISPID_DOCUMENTCOMPLETE, DocumentComplete, &DWebBrowserEvents2Info::DocumentComplete)
+    END_SINK_MAP()
 private:
     int OnCreate(LPCREATESTRUCT lpCreateStruct, BOOL& bHandled);
     void OnDestroy(BOOL& bHandled);
     void OnDropFiles(HDROP hDropInfo, BOOL& bHandled);
+    virtual void OnFinalMessage(HWND /* hWnd */) { delete this; }
     void OnSize(UINT nType, int cx, int cy, BOOL& bHandled);
+private:
+    void BeforeNavigate2(IDispatch *pDisp, VARIANT *url, VARIANT *Flags, VARIANT *TargetFrameName,
+        VARIANT *PostData, VARIANT *Headers, VARIANT_BOOL *Cancel);
+    void DocumentComplete(IDispatch *pDisp, VARIANT *URL);
 private:
     void OnCommand(WORD wNotifyCode, WORD wID, HWND hWndCtrl, BOOL& bHandled);
     void OnAbout(void);
@@ -61,16 +82,16 @@ private:
     void OnNewFileDrop(LPCWSTR lpFileName);
 private:
     HFONT m_hFont;
-    LToolBar m_tb;
-    LImageList m_iml;
+    CToolBarCtrl m_tb;
+    CImageList m_iml;
     CCmbEx m_cbSymbols;
     CDetailView m_vDetail;
-    LSplitter m_split;
-    LStatusBar m_status;
+    CSplitterWindow m_split;
+    CStatusBarCtrl m_status;
     CDiaHelper m_dia;
-    LIniParser m_ini;
-    LPtrList m_lstHistory;
-    LIterator m_itCurrent;
+    std::wstring m_wsIni;
+    std::list<EXPINFO> m_lstHistory;
+    std::list<EXPINFO>::iterator m_itCurrent;
     int m_nMaxHistory;
     CDownLoader m_DnLdr;
 };

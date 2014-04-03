@@ -31,8 +31,7 @@ const TBBUTTON g_btns[TB_BTN_COUNT] = {
     { 7, ID_ABOUT,    TBSTATE_ENABLED, BTNS_AUTOSIZE, { 0, 0 }, 0, 7 }
 };
 
-CMainFrame::CMainFrame(__in LPWNDCLASS wc) : LWindow(wc)
-    , m_DnLdr(_T("Microsoft-Symbol-Server/6.9.0003.113"))
+CMainFrame::CMainFrame(void) : m_DnLdr(_T("Microsoft-Symbol-Server/6.9.0003.113"))
 {
     LOGFONT lf  = { 0 };
     lstrcpy(lf.lfFaceName, _T("Courier New"));

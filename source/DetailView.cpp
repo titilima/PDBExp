@@ -11,24 +11,6 @@
 #include "DetailView.h"
 #include "Utilities.h"
 
-///////////////////////////////////////////////////////////////////////////////
-// CEventHandler
-
-void CEventHandler::OnDocumentComplete(void)
-{
-}
-
-void CEventHandler::OnSymbolChange(DWORD id)
-{
-}
-
-void CEventHandler::OnNewFileDrop(LPCWSTR lpFileName)
-{
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// CDetailView
-
 static HRESULT GetDocument(CDetailView *dv, IDispatch **ppDoc)
 {
     CComPtr<IWebBrowser2> wb2;
@@ -51,7 +33,7 @@ static HRESULT GetBody(CDetailView *dv, IHTMLElement **ppBody)
     return doc->get_body(ppBody);
 }
 
-CDetailView::CDetailView(void) : m_pEventHandler(NULL), m_pCurSymbol(NULL), m_bEnable(TRUE)
+CDetailView::CDetailView(void)
 {
     // Nothing
 }
@@ -114,11 +96,6 @@ IDiaSymbol* CDetailView::DetachCurrentSymbol(void)
     return pRet;
 }
 
-void CDetailView::EnableHyperLink(__in BOOL bEnable)
-{
-    m_bEnable = bEnable;
-}
-
 void CDetailView::Finalize(void)
 {
     m_pCurSymbol.Release();
@@ -151,14 +128,6 @@ BOOL CDetailView::GetText(string *pStr)
 void CDetailView::SetCurrentSymbol(__in IDiaSymbol* pCurSymbol)
 {
     m_pCurSymbol = pCurSymbol;
-}
-
-BOOL CDetailView::SetEventHandler(__in CEventHandler* pEventHandler)
-{
-    if (NULL != m_pEventHandler)
-        return FALSE;
-    m_pEventHandler = pEventHandler;
-    return TRUE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -200,6 +169,8 @@ int CDetailView::OnCreate(LPCREATESTRUCT lpCreateStruct, BOOL& bHandled)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#if 0
+
 void CDetailView::BeforeNavigate2(
     IDispatch *pDisp,
     VARIANT *url,
@@ -231,6 +202,8 @@ void CDetailView::DocumentComplete(IDispatch *pDisp, VARIANT *URL)
         m_pEventHandler->OnDocumentComplete();
     }
 }
+
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

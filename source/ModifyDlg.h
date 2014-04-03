@@ -9,15 +9,16 @@
 
 #pragma once
 
-#include <pdl_window.h>
-#include <pdl_commctrl.h>
 #include "DiaHelper.h"
 #include "DetailView.h"
 
-class CModifyDlg : public LDialog, private CEventHandler
+#include "resource.h"
+
+class CModifyDlg : public CDialogImpl<CModifyDlg>
 {
 public:
     CModifyDlg(CDiaHelper* pDia, IDiaSymbol* pSymbol);
+    enum { IDD = IDD_DLG_MODIFY };
 private:
     static BOOL cbAddMember(IDiaSymbol* pCurSymbol, LPVOID pParam);
     static BOOL cbEnumModify(IDiaSymbol* pCurSymbol, LPVOID pParam);
@@ -34,7 +35,7 @@ private:
 private:
     void OnDocumentComplete(void);
 private:
-    LListView m_list;
+    CListViewCtrl m_list;
     CDetailView m_view;
     IDiaSymbol* m_pSymbol;
     CDiaHelper* m_pDia;
